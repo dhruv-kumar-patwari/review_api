@@ -1,7 +1,24 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-  resources :books
-  resources :movies
-  resources :users
-  resources :posts
+  # get 'users/:id/posts' => 'users#posts', :as => :user_posts
+  concern :commentable do
+    resources :comments, only: [:index]
+  end
+
+  concern :post_commentable do
+    resources :posts, only: %i[index show create update destroy], concerns: :commentable
+  end
+
+  concern :user_postable do
+    resources :users, only: %i[index show create update destroy], concerns: :post_commentable
+  end
+
+  resources :books, only: %i[index show create update destroy], concerns: :user_postable
+  resources :movies, only: %i[index show create update destroy], concerns: :user_postable
+
+  resources :users, only: %i[index show create update destroy], concerns: :post_commentable
+
+  resources :posts, only: %i[index show create update destroy] do
+    resources :comments, only: %i[index show create update destroy]
+  end
 end

@@ -3,7 +3,13 @@ class PostsController < ApplicationController
   before_action :set_post, only: %i[show update destroy]
 
   def index
-    render json: Post.all
+    if params[:user_id]
+      @user = User.find(params[:user_id])
+      @posts = @user.posts
+      render json: @posts
+    else
+      render json: Post.all
+    end
   end
 
   def show
@@ -39,6 +45,6 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:content, :commentable_type, :commentable_id)
+    params.require(:post).permit(:content, :commentable_type, :commentable_id, :user_id)
   end
 end
