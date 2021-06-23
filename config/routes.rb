@@ -10,13 +10,15 @@ Rails.application.routes.draw do
   end
 
   concern :user_postable do
-    resources :users, only: %i[index show create update destroy], concerns: :post_commentable
+    resources :users, only: %i[index show], concerns: :post_commentable
   end
 
   resources :books, only: %i[index show create update destroy], concerns: :user_postable
   resources :movies, only: %i[index show create update destroy], concerns: :user_postable
 
-  resources :users, only: %i[index show create update destroy], concerns: :post_commentable
+  resources :users, only: %i[index show create update destroy] do
+    resources :posts, only: [:index]
+  end
 
   resources :posts, only: %i[index show create update destroy] do
     resources :comments, only: %i[index show create update destroy]
