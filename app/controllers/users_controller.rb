@@ -21,15 +21,23 @@ class UsersController < ApplicationController
   end
 
   def update
-    if @user.update(user_params)
-      render json: @user
+    if @current_user == @user
+      if @user.update(user_params)
+        render json: @user
+      else
+        render json: @user.errors, status: :unprocessable_entity
+      end
     else
-      render json: @user.errors, status: :unprocessable_entity
+      render json: { "error": 'You are not authorized to update other users' }, status: :unauthorized
     end
   end
 
   def destroy
-    @user.destroy
+    if @current_user == @user
+      @user.destroy
+    else
+      render json: { "error": 'You are not authorized to delete other users' }, status: :unauthorized
+    end
   end
 
   private
@@ -39,6 +47,6 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email)
+    params.require(:user).permit(:name, :email, :password)
   end
 end

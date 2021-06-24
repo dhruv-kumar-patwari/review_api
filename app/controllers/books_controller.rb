@@ -11,25 +11,37 @@ class BooksController < ApplicationController
   end
 
   def create
-    book = Book.new(book_params)
+    if @current_user.admin
+      book = Book.new(book_params)
 
-    if book.save
-      render json: book, status: :created
+      if book.save
+        render json: book, status: :created
+      else
+        render json: book.errors, status: :unprocessable_entity
+      end
     else
-      render json: book.errors, status: :unprocessable_entity
+      render json: { "error": 'You are not authorized to add books' }, status: :unauthorized
     end
   end
 
   def update
-    if @book.update(book_params)
-      render json: @book
+    if @current_user.admin
+      if @book.update(book_params)
+        render json: @book
+      else
+        render json: @book.errors, status: :unprocessable_entity
+      end
     else
-      render json: @book.errors, status: :unprocessable_entity
+      render json: { "error": 'You are not authorized to update books' }, status: :unauthorized
     end
   end
 
   def destroy
-    @book.destroy
+    if @current_user.admin
+      @book.destroy
+    else
+      render json: { "error": 'You are not authorized to delete books' }, status: :unauthorized
+    end
   end
 
   private

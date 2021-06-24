@@ -11,6 +11,7 @@ class MoviesController < ApplicationController
   end
 
   def create
+    if @current_user.admin
     movie = Movie.new(movie_params)
 
     if movie.save
@@ -18,18 +19,29 @@ class MoviesController < ApplicationController
     else
       render json: movie.errors, status: :unprocessable_entity
     end
+    else
+      render json: { "error": 'You are not authorized to add books' }, status: :unauthorized
+    end
   end
 
   def update
+    if @current_user.admin
     if @movie.update(movie_params)
       render json: @movie
     else
       render json: @movie.errors, status: :unprocessable_entity
     end
+else
+      render json: { "error": 'You are not authorized to update books' }, status: :unauthorized
+    end
   end
 
   def destroy
+    if @current_user.admin
     @movie.destroy
+    else
+      render json: { "error": 'You are not authorized to delete books' }, status: :unauthorized
+    end
   end
 
   private

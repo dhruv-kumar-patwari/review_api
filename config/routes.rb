@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   end
 
   resources :books, only: %i[index show create update destroy], concerns: :user_postable
-  resources :movies, only: %i[index show create update destroy], concerns: :user_postable
+  resources :movies, only: %i[index show create update destroy], concerns: %i[user_postable post_commentable]
 
   resources :users, only: %i[index show create update destroy] do
     resources :posts, only: [:index]

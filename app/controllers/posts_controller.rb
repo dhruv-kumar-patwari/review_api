@@ -18,6 +18,7 @@ class PostsController < ApplicationController
 
   def create
     post = Post.new(post_params)
+    post.user_id = @current_user.id
 
     if post.save
       render json: post, status: :created
@@ -27,15 +28,23 @@ class PostsController < ApplicationController
   end
 
   def update
-    if @post.update(post_params)
-      render json: @post
+    if @current_user == @post.user
+      if @post.update(post_params)
+        render json: @post
+      else
+        render json: @post.errors, status: :unprocessable_entity
+      end
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render json: { "error": 'You are not authorized to update posts by others' }, status: :unauthorized
     end
   end
 
   def destroy
-    @post.destroy
+    if @current_user == @post.user
+      @post.destroy
+    else
+      render json: { "error": 'You are not authorized to delete posts by others' }, status: :unauthorized
+    end
   end
 
   private
@@ -45,6 +54,6 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:content, :commentable_type, :commentable_id, :user_id)
+    params.require(:post).permit(:content, :commentable_type, :commentable_id)
   end
 end

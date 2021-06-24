@@ -14,6 +14,8 @@ class CommentsController < ApplicationController
 
   def create
     comment = Comment.new(comment_params)
+    comment.user_id = @current_user.id
+    comment.post_id = params[:post_id]
 
     if comment.save
       render json: comment, status: :created
@@ -23,15 +25,23 @@ class CommentsController < ApplicationController
   end
 
   def update
-    if @comment.update(comment_params)
-      render json: @comment
+    if @current_user == @comment.user
+      if @comment.update(comment_params)
+        render json: @comment
+      else
+        render json: @comment.errors, status: :unprocessable_entity
+      end
     else
-      render json: @comment.errors, status: :unprocessable_entity
+      render json: { "error": 'You are not authorized to update comments by others' }, status: :unauthorized
     end
   end
 
   def destroy
-    @comment.destroy
+    if @current_user == @comment.user
+      @comment.destroy
+    else
+      render json: { "error": 'You are not authorized to delete comments by others' }, status: :unauthorized
+    end
   end
 
   private

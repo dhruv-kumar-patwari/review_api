@@ -1,5 +1,5 @@
 class Movie < ApplicationRecord
-  has_many :posts, as: :commentable
+  has_many :posts, as: :commentable, dependent: :destroy
   validates :title, presence: true, length: { minimum: 3, maximum: 100 }
   validates :director, presence: true, length: { minimum: 3, maximum: 100 }
   validates :rating, presence: true,
