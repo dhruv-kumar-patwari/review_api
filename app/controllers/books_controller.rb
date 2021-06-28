@@ -3,7 +3,9 @@ class BooksController < ApplicationController
   before_action :set_book, only: %i[show update destroy]
 
   def index
-    render json: Book.all
+    @books = Book.where(nil)
+    @books = Book.filter_by_books(params[:contains]) if params[:contains].present?
+    render json: @books
   end
 
   def show

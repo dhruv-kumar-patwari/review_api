@@ -3,7 +3,9 @@ class MoviesController < ApplicationController
   before_action :set_movie, only: %i[show update destroy]
 
   def index
-    render json: Movie.all
+    @movies = Movie.where(nil)
+    @movies = Movie.filter_by_movies(params[:contains]) if params[:contains].present?
+    render json: @movies
   end
 
   def show
@@ -12,13 +14,13 @@ class MoviesController < ApplicationController
 
   def create
     if @current_user.admin
-    movie = Movie.new(movie_params)
+      movie = Movie.new(movie_params)
 
-    if movie.save
-      render json: movie, status: :created
-    else
-      render json: movie.errors, status: :unprocessable_entity
-    end
+      if movie.save
+        render json: movie, status: :created
+      else
+        render json: movie.errors, status: :unprocessable_entity
+      end
     else
       render json: { "error": 'You are not authorized to add books' }, status: :unauthorized
     end
@@ -26,19 +28,19 @@ class MoviesController < ApplicationController
 
   def update
     if @current_user.admin
-    if @movie.update(movie_params)
-      render json: @movie
+      if @movie.update(movie_params)
+        render json: @movie
+      else
+        render json: @movie.errors, status: :unprocessable_entity
+      end
     else
-      render json: @movie.errors, status: :unprocessable_entity
-    end
-else
       render json: { "error": 'You are not authorized to update books' }, status: :unauthorized
     end
   end
 
   def destroy
     if @current_user.admin
-    @movie.destroy
+      @movie.destroy
     else
       render json: { "error": 'You are not authorized to delete books' }, status: :unauthorized
     end
