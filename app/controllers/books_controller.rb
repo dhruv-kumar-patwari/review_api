@@ -4,8 +4,8 @@ class BooksController < ApplicationController
 
   def index
     @books = Book.where(nil)
-    @books = Book.filter_by_books(params[:contains]) if params[:contains].present?
-    render json: @books
+    @books = Book.filter(params[:filter]) if params[:filter].present?
+    render json: { books: @books }
   end
 
   def show

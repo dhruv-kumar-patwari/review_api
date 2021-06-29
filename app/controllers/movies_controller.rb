@@ -4,7 +4,7 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.where(nil)
-    @movies = Movie.filter_by_movies(params[:contains]) if params[:contains].present?
+    @movies = Movie.filter(params[:filter]) if params[:filter].present?
     render json: @movies
   end
 
