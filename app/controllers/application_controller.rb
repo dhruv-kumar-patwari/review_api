@@ -5,8 +5,9 @@ class ApplicationController < ActionController::Base
   private
 
   def authenticate_request
+    return @current_user = User.first if Rails.env.test?
+
     @current_user = AuthorizeApiRequest.call(request.headers).result
-    @current_user = User.first if Rails.env.test?
     render json: { error: 'Not Authorized' }, status: 401 unless @current_user
   end
 end
