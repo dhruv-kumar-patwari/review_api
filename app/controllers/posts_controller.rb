@@ -3,13 +3,17 @@ class PostsController < ApplicationController
   before_action :set_post, only: %i[show update destroy]
 
   def index
-    if params[:user_id]
-      @user = User.find(params[:user_id])
-      @posts = @user.posts
-      render json: @posts
-    else
-      render json: Post.all
-    end
+    @posts = if params[:book_id]
+               query_posts('Book', params[:book_id], params[:user_id])
+
+             elsif params[:movie_id]
+               query_posts('Movie', params[:movie_id], params[:user_id])
+
+             else
+               Post.all
+             end
+
+    render json: @posts
   end
 
   def show
@@ -55,5 +59,16 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:content, :commentable_type, :commentable_id)
+  end
+
+  def query_posts(type, type_id, user_id)
+    Post.where(
+      ["commentable_type = ?
+          AND commentable_id = ?
+          AND user_id = ?",
+       type,
+       type_id,
+       user_id]
+    )
   end
 end
